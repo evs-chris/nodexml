@@ -91,6 +91,11 @@ parseXml.CreateParser = function () {
                             writer.writeEndElement();
                         }
                     }
+                    else if (value && Object.prototype.toString.call(value) === '[object Date]') {
+                        writer.writeStartElement(name);
+                        writer.writeString(value.toISOString());
+                        writer.writeEndElement();
+                    }
                     else {
                         if (Array.isArray ? Array.isArray(value) : (value == null ? String(value) : (Object.prototype.toString.call(value) == "[object Array]"))) {//if ($.isArray(value)) {// (value instanceof Array) {
                             for (var k = 0; k < value.length; k++) {
