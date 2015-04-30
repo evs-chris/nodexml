@@ -2,12 +2,13 @@ var parseXml = parseXml || {};
 parseXml.CreateParser = function () {
 
     var parser = {
-        parse: function (obj, rootName) {
+        parse: function (obj, rootName, options) {
+            options = options || {};
             rootName = rootName || "root";
             var writer = require('./xmlWriter').xmlWriter();//new XMLWriter("UTF-8", "1.0");
             writer.writeStartDocument();
             writer.writeStartElement(rootName);
-            Transform(writer, [obj], obj);
+            Transform.call(options, writer, [obj], obj);
             writer.writeEndElement();
             writer.writeEndDocument();
             return writer.flush();
@@ -33,6 +34,14 @@ parseXml.CreateParser = function () {
             }
         for (var name in obj) {
             var value = obj[name];
+            if (typeof name === "number") {
+                if (value && Object.prototype.toString.call(value) === '[object Array]' && value.name)
+                    name = value.name;
+                else if (this.arrayElementName)
+                    name = this.arrayElementName;
+                else
+                    name = 'element' + name;
+            }
             if ((typeof value) == "function" || name == "@")
                 continue;
             if (name == '@text') {
@@ -105,7 +114,7 @@ parseXml.CreateParser = function () {
                                     }
                                     else {
                                         stack.push(obj);
-                                        Transform(writer, stack, value[k]);
+                                        Transform.call(this, writer, stack, value[k]);
                                         stack.pop();
                                     }
                                 }
@@ -126,7 +135,7 @@ parseXml.CreateParser = function () {
                             }
                             else {
                                 stack.push(obj);
-                                Transform(writer, stack, value);
+                                Transform.call(this, writer, stack, value);
                                 stack.pop();
                             }
                             writer.writeEndElement();
