@@ -1,4 +1,5 @@
 var parseXml = parseXml || {};
+var isNumeric = /^[0-9]/;
 parseXml.CreateParser = function () {
 
     var parser = {
@@ -34,11 +35,11 @@ parseXml.CreateParser = function () {
             }
         for (var name in obj) {
             var value = obj[name];
-            if (typeof name === "number") {
-                if (value && Object.prototype.toString.call(value) === '[object Array]' && value.name)
-                    name = value.name;
-                else if (this.arrayElementName)
-                    name = this.arrayElementName;
+            if (isNumeric.test(name)) {
+                if (this.numericKeyPrefix)
+                    name = this.numericKeyPrefix + name;
+                else if (this.numericKeyName)
+                    name = this.numericKeyName;
                 else
                     name = 'element' + name;
             }
@@ -157,6 +158,6 @@ parseXml.CreateParser = function () {
     }
 };
 
-module.exports.obj2xml = function (obj, rootName) {
-    return new parseXml.CreateParser().parse(obj, rootName);
+module.exports.obj2xml = function (obj, rootName, options) {
+    return new parseXml.CreateParser().parse(obj, rootName, options);
 };
